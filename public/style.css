@@ -17,6 +17,10 @@ body {
     color: orange;
 }
 
+.sf-toolbar{
+    position: absolute;
+}
+
 main, 
 aside 
 {

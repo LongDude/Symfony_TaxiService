@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Repository;
+namespace App\Core;
 
 use Doctrine\ORM\QueryBuilder;
 

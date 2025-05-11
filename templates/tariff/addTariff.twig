@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/js/core.js" defer></script>
+    <script src="/js/validators/TariffValidator.js" defer></script>
+    <title>Такси сервис "Туда-Сюда"</title>
+</head>
+<body>
+    {{ block ("messages", "_messaging.twig")}}
+    <main class="main-panel">
+        <h1>Добавление новых тарифов</h1>
+
+        {{ form_errors(tariffForm) }}
+        {{ form_start(tariffForm) }}
+        {{ form_row(tariffForm.name) }}
+        {{ form_row(tariffForm.base_price) }}
+        {{ form_row(tariffForm.base_dist) }}
+        {{ form_row(tariffForm.dist_cost) }}
+        <button type="submit" class="btn">Добавить</button>
+        {{ form_end(tariffForm) }}
+     
+
+    </main>
+</body>
+</html>

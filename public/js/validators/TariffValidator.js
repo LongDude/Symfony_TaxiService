@@ -1,17 +1,15 @@
-const nameInput = document.getElementById('name');
-const base_priceInput = document.getElementById('base_price');
-const base_distInput = document.getElementById('base_dist');
-const dist_costInput = document.getElementById('dist_cost');
-const csvFileInput = document.getElementById('csv-file');
+const nameInput = document.getElementsByClassName('inp_name');
+const base_priceInput = document.getElementsByClassName('inp_base_price');
+const base_distInput = document.getElementsByClassName('inp_base_dist');
+const dist_costInput = document.getElementsByClassName('inp_dist_cost');
 
 var nameValidator = null;
 var base_priceValidator = null;
 var base_distValidator = null;
 var dist_costValidator = null;
-var csvFileValidator  = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("form").addEventListener("submit", (event) => onSubmit(event));
+    document.querySelector("form").addEventListener("submit", (event) => onSubmit(event));
     
     nameValidator = new FormValidator(
         nameInput,
@@ -41,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
         BasicValidators.posFloatPassiveValidator,
         BasicValidators.posFloatActiveValidator
     )
-    csvFileValidator = new CSVValidator(csvFileInput)
 })
 
 function onSubmit(event) {

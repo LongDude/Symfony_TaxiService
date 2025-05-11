@@ -1,17 +1,15 @@
+const intershipInput = document.getElementsByClassName('inp_intership')[0];
+const car_licenseInput = document.getElementsByClassName('inp_car_license')[0];
+const car_brandInput = document.getElementsByClassName('inp_car_brand')[0];
+const tariff_idInput = document.getElementsByClassName('inp_tariff_id')[0];
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("form").addEventListener("submit", (event));
-    const intershipInput = document.getElementById('intership');
-    const car_licenseInput = document.getElementById('car_license');
-    const car_brandInput = document.getElementById('car_brand');
-    const tariff_idInput = document.getElementById('tariff_id');
-    const csvFileInput = document.getElementById('csv-file');
+    document.querySelector("form").addEventListener("submit", (event));
     
     const intershipValidator = new FormValidator(
         intershipInput,
         BasicValidators.posNumberPassiveValidator,
         BasicValidators.posNumberActiveValidator
     )
-
     const car_licenseValidator = new FormValidator(
         car_licenseInput,
         (event) => {
@@ -37,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
         (event) => {},
         (value) => value > 0 
     )
-    const csvFileValidator = new CSVValidator(csvFileInput)
 })
 
 function onSubmit(event) {
@@ -52,9 +49,6 @@ function onSubmit(event) {
         isValid &= validator.validate()
     })
 
-    if (csvFileInput.files.length > 0){
-        isValid = isValid || CSVValidator.validate();
-    }
 
     if (!isValid) {
         event.preventDefault();

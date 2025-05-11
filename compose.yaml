@@ -47,9 +47,20 @@ services:
     networks:
       - app-network
 
+  graphhopper:
+    ports:
+      - 8989:8989
+    image: israelhikingmap/graphhopper
+    command: --url https://download.openstreetmap.fr/extracts/russia/central_federal_district/lipetsk_oblast-latest.osm.pbf --host 0.0.0.0
+    restart: unless-stopped
+    volumes:
+      - graphhopper_data:/data
+
 volumes:
   database_data:
   pgadmin:
+  graphhopper_data:
+
 
 networks:
   app-network:

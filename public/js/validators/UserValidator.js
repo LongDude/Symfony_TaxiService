@@ -1,10 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("form").addEventListener("submit", (event) => onSubmit(event));
-    const nameInput = document.getElementById('name');
-    const phoneInput = document.getElementById('phone');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const reppasswordInput = document.getElementById('repeat_password');
+    document.querySelector("form").addEventListener("submit", (event) => onSubmit(event));
+    const nameInput = document.getElementsByClassName('inp_name')[0];
+    const phoneInput = document.getElementsByClassName('inp_phone')[0];
+    const emailInput = document.getElementsByClassName('inp_email')[0];
 
     const nameValidator = new FormValidator(
         nameInput,
@@ -30,26 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
         emailInput,
         BasicValidators.emailPassiveValidator,
         BasicValidators.emailActiveValidator
-    )
-
-    const passwordValidator = new FormValidator(
-        passwordInput,
-        (event) => {
-            let val = event.target.value;
-            let m = val.match(/[a-z\d!@#$%^&*]{0,20}$/i)
-            if (!m) {
-                event.target.value = "";
-            } else {
-                event.target.value = m[0];
-            }
-        },
-        (value) => (/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/.test(value)),
-    )
-
-    const reppasswordValidator = new FormValidator(
-        reppasswordInput,
-        () => {},
-        (value) => value == passwordInput.value
     )
 })
 

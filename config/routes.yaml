@@ -3,3 +3,12 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+# catch_all:
+#     path: /{path}
+#     controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController::redirectAction
+#     defaults:
+#         route: app_main  # Your main route name
+#         permanent: true
+#     requirements:
+#         path: ".*"

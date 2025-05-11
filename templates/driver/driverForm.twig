@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/js/core.js" defer></script>
+    <script src="/js/validators/UserValidator.js" defer></script>
+    <script src="/js/validators/DriverValidator.js" defer></script>
+    <title>Такси сервис "Туда-Сюда"</title>
+</head>
+
+<body>
+    {{ block ("messages", "_messaging.twig")}}
+    <main class="main-panel">
+        <h1>{{ form_title }}</h1>
+        <form action="{{ path('app_driver_profile') }}" method="post" enctype="multipart/form-data">
+            {{ form_start(form) }}
+            
+            {{ form_row(form.email) }}
+            {{ form_row(form.name) }}
+            {{ form_row(form.phone) }}
+            {{ form_row(form.intership) }}
+            {{ form_row(form.car_license) }}
+            {{ form_row(form.car_brand) }}
+            {{ form_row(form.tariff) }}
+            {% if form.plainPassword is defined %}
+                {{ form_row(form.plainPassword) }}
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary">Зарегистрироваться как водитель</button>
+            {{ form_end(form) }}
+        </form>
+    </main>
+</body>
+</html>

@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("form").addEventListener("submit", (event));
+    document.querySelector("form").addEventListener("submit", (event));
     const phoneInput = document.getElementById('phone');
     const from_locInput = document.getElementById('from_loc');
     const dest_locInput = document.getElementById('dest_loc');

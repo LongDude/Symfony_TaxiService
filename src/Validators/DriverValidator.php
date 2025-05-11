@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Validators;
-require_once 'BaseValidators.php';
-
+use App\Core\ModelValidator;
+use App\Core\BaseValidators;
 
 class DriverValidator implements ModelValidator
 {

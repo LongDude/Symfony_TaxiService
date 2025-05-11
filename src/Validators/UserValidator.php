@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Validators;
-require_once 'BaseValidators.php';
+use App\Core\ModelValidator;
+use App\Core\BaseValidators;
+
 
 class UserValidator implements ModelValidator{
     public static function validateData(array $data): string

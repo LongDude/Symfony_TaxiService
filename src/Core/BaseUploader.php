@@ -1,7 +1,5 @@
 <?php
-namespace src\Files;
-
-use src\Validators\ModelValidator;
+namespace App\Core;
 
 class BaseUploader
 {

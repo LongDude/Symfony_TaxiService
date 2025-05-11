@@ -2,6 +2,9 @@
 class FormValidator {
     constructor(inputElement, inputValidator, valueValidator) {
         this.element = inputElement;
+        if (!this.element){
+            return;
+        }
         let nxt = this.element.nextElementSibling
         // Если следущий элемент - метка для текущего
         this.hasInfo = false;
@@ -19,6 +22,9 @@ class FormValidator {
     }
 
     validate() {
+        if (!this.element){
+            return true;
+        }
         let isValid = this.valueValidator(this.element.value);
         this.toggleError(!isValid);
         return isValid;

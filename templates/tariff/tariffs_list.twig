@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список тарифов</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <main class="table-panel">
+        <h2>Список тарифов</h2>
+        <table>
+            <tr>
+                <th>Имя</th>
+                <th>Баз. Стоимость</th>
+                <th>Баз. Расстояние</th>
+                <th>Стоимость за км</th>
+            </tr>
+            {% for tariff in tariffs %}
+            <tr>
+                <td>{{ tariff.name }}</td>
+                <td>{{ tariff.base_price }}</td>
+                <td>{{ tariff.base_dist }}</td>
+                <td>{{ tariff.dist_cost }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </main>
+</body>
+</html>

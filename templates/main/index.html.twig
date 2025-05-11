@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="main-style.css">
+
+    <title>Такси "Туда-Сюда"</title>
+</head>
+
+<body>
+    {{ block ("messages", "_messaging.twig")}}
+    <h1>Такси-сервис "Туда-Сюда"</h1>
+    <img>
+    <main>
+        <div id="user-info">
+            <p>Имя пользователя: <span>{{ username }}</span></p>
+            <p>Почтовый адрес: <span>{{ email }}</span></p>
+            <p>Номер телефона: <span>{{ phone }}</span></p>
+            <p>Роль: <span>
+            {% if 'ROLE_ADMIN' in roles %}
+                АДМИН
+            {% elseif 'ROLE_DRIVER' in roles %}
+                Водитель
+            {% elseif 'ROLE_USER' in roles %}
+                Пользователь
+            {% endif %}
+            </span></p>
+        </div>
+        <div id="user-opt">
+            <a href="/logout">Выйти</a>
+            {% if 'ROLE_ADMIN' not in roles %}
+                {% if 'ROLE_DRIVER' not in roles %}
+                    <a href="/editProfile/user">Редактировать профиль</a>
+                    <a href="/editProfile/driver">Зарегистрироваться как водитель</a>
+                {% else %}
+                    <a href="/editProfile/driver">Редактировать профиль</a>
+                {% endif %}
+            {% endif %}
+        </div>
+        <div id="links">
+            <div id='user-links'>
+                <a href="/order/new">Заказать такси</a>
+                <a href="/tariffs/list">Список тарифов</a>
+                <a href="/history/rides">История поездок</a>
+            </div>
+            {% if 'ROLE_DRIVER' in roles %}
+            <div id='driver-links'>
+                <a href="/history/orders">История заказов</a>
+            </div>
+            {% endif %}
+            {% if 'ROLE_ADMIN' in roles %}
+            <div id='admin-links'>
+                <a href="/orders">Таблица заказов</a>
+                <a href="/users">Таблица пользователей</a>
+                <a href="/drivers">Таблица водителей</a>
+                <a href="/tariffs/table">Таблица тарифов</a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+
+</html>

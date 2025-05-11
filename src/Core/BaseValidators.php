@@ -1,12 +1,9 @@
 <?php
-namespace App\Validators;
+namespace App\Core;
 use DateTime;
 
 
-interface ModelValidator{
-    public static function validateData(array $data): string;
-    public static function validateFilter(array $data): array;
-}
+
 
 class BaseValidators
 {
