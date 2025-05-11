@@ -1,0 +1,49 @@
+{% block messages %}    
+    <script>
+        window.onload = () => {
+            {% if message is not null and message is not empty %}
+                alert("{{ message }}");
+            {% endif %}
+            {% if error is not null and error is not empty %}
+                console.error("{{ error }}");
+            {% endif %}
+        }
+    </script>
+{% endblock %}
+{% block report_btns %}
+    <style>
+        .report_group {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+    </style>
+    <div class="report_group">
+        <button type="submit" id="report-excel">Отчет XSLX</button>
+        <button type="submit" id="report-pdf">Отчет PDf</button>
+    </div>
+    <script>
+        document.getElementById('report-excel').addEventListener('click', function(d) {
+            d.preventDefault();
+        
+            const params = new URLSearchParams({
+                type: 'excel',
+            })
+            const formData = new FormData(document.querySelector('form'));
+            formData.forEach((val, name) => params.append(name, val));
+        
+        window.location.assign(`{{ callback }}?${params.toString()}`);
+        });
+        document.getElementById('report-pdf').addEventListener('click', function(d) {
+            d.preventDefault();
+        
+            const params = new URLSearchParams({
+                type: 'pdf',
+            })
+            const formData = new FormData(document.querySelector('form'));
+            formData.forEach((val, name) => params.append(name, val));
+        
+        window.location.assign(`{{ callback }}?${params.toString()}`);
+        });
+    </script>
+{% endblock %}

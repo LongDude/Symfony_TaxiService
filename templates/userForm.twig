@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/js/core.js" defer></script>
+    <script src="/js/validators/UserValidator.js" defer></script>
+    <title>Такси сервис "Туда-Сюда"</title>
+</head>
+
+<body>
+    {{ block ("messages", "_messaging.twig")}}
+    <main class="main-panel">
+        <h1>{{ form_title }}</h1>
+        <form action="{{ callback }}" method="post" name="form" id="form" enctype="multipart/form-data">
+            <div class="input-group">
+                <label for="name">Имя:</label>
+                <input type="text" name="name" id="name" placeholder="Василий Пупкин" value={{username}}>
+            </div>
+            <div class="input-group">
+                <label for="phone">Контактный номер:</label>
+                <input type="text" name="phone" id="phone" placeholder="+7 (123) 456-78-90" value={{phone}}>
+            </div>
+            <div class="input-group">
+                <label for="email">Почтовый адрес:</label>
+                <input type="email" name="email" id="email" placeholder="abc@xyz.com" value={{email}}>
+            </div>
+            <div class="input-group">
+                <label for="password">Пароль:</label>
+                <input type="password" name="password" id="password">
+                <label for="password" class="input-info">Латинница, 8 символов, 1 заглавная буква, 1 цифра, 1 спец символ</label>
+            </div>
+            <div class="input-group">
+                <label for="repeat_password">Повтор пароля:</label>
+                <input type="password" name="repeat_password" id="repeat_password">
+            </div>
+            <input type="submit" value="Отправить" id="submit">
+        </form>
+    </main>
+</body>
+</html>

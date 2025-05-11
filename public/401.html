@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Доступ запрещен</title>
+</head>
+<body>
+<style>
+    body {
+        display: grid;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;   
+        grid-template-rows: 50% 50%;
+        grid-template-columns: 100%;
+        justify-content: center; 
+        justify-items: center;
+        align-items: center;
+        align-content: center;
+        padding: 0px;
+        margin: 0px;
+        background-color: #000030;
+        color: orange;
+    }
+    #image {
+        height: 40vh;
+        width: 40vw;
+        background-image: url("assets/1574787562143769699-1402573659.jpg");
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center;
+    }
+    div {
+        display: flex;
+        flex-direction: column;
+    }
+    h1 {
+        height: min-content;
+        text-align: center;
+    }
+</style>
+
+<div>
+    <h1>Недостаточно прав</h1>
+    <div id="image"></div>
+</div>
+</body>
+</html>

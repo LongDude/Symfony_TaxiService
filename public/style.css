@@ -1,0 +1,145 @@
+* {
+    box-sizing: content-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-items: center;
+    justify-content: space-around;
+    height: 100vh;
+    width: 100vw;
+
+    background-color: #000030;
+    color: orange;
+}
+
+main, 
+aside 
+{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    border: 2px solid orange;
+    border-radius: 10px;
+    padding: 20px;
+
+    -webkit-box-shadow:0px 0px 62px 5px rgba(255,172,64,0.9);
+    -moz-box-shadow: 0px 0px 62px 5px rgba(255,172,64,0.9);
+    box-shadow: 0px 0px 62px 5px rgba(255,172,64,0.9);
+}
+
+table,
+tbody {
+    max-height: 100%;
+}
+
+.table-panel{
+    height: 80%;
+    max-height: 100%;
+}
+
+.table-panel * {
+    text-align: center;
+    padding: 2px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+    margin: 0px;
+    gap: 0px;
+}
+
+.table-panel td,
+.table-panel tr,
+.table-panel th
+{
+    border: 1px solid rgba(149, 88, 9, 0.844);
+    border-top: 2px solid rgba(255,172,64,0.9);
+    border-bottom: 2px solid rgba(255,172,64,0.9);
+}
+
+.table-panel table {
+    border: 2px solid rgba(255,172,64,0.9);
+    max-height: 100%;
+    overflow-y: visible;
+}
+
+a {
+    color: rgba(255,172,64,0.9);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input, label {
+    display: block;
+    width: 100%;
+}
+
+input:invalid,
+.invalid {
+    border: 2px solid #d82929;
+    -webkit-box-shadow:0px 0px 14px 2px #d82929;
+    -moz-box-shadow: 0px 0px 14px 2px #d82929;
+    box-shadow: 0px 0px 14px 2px #d82929;
+
+}
+
+
+
+.invalid-info {
+    color: red !important;
+}
+
+.input-info {
+    color: yellow;
+    font-size: 0.9rem;
+}
+
+#submit {
+    margin-top: 20px;
+}
+
+.articles-panel {
+    display: flex;
+    flex-direction: column;
+    align-content: flex-start;
+    gap: 5px;
+}
+
+.articles-panel article {
+    text-align: center;
+    padding: 2px;
+    border-spacing: 0px;
+    border-collapse: collapse;
+    margin: 0px;
+    gap: 0px;
+
+    display: grid;
+    grid-template-columns: 300px 100px 100px 100px;
+
+    border-radius: 5px;
+}
+
+.articles-panel article span {
+    display: block;
+}
+
+.articles-panel article span:nth-child(1) {
+    text-align: left;
+}
+
+.articles-panel article:hover {
+    background-color: #d82929;
+    cursor: pointer;
+}
+
+.order-selected {
+    background-color: #bd6f41;
+}

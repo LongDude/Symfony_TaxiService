@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/js/core.js" defer></script>
+    <title>Такси сервис "Туда-Сюда"</title>
+</head>
+<body>
+    {{ block ("messages", "_messaging.twig")}}
+    <main class="main-panel">
+        <h1>Авторизация</h1>
+        <form action="" method="post" name="form" id="form" enctype="multipart/form-data">
+            <div class="input-group">
+                <label for="email">Логин:</label>
+                <input type="email" name="email" id="email" value="{{email}}" placeholder="abc@xyz.com">
+                <!-- <label for="email" class="input-info"></label> -->
+            </div>
+            <div class="input-group">
+                <label for="password">Пароль:</label>
+                <input type="password" name="password" id="password">
+            </div>
+            <input type="submit" value="Войти" id="submit">
+        </form>
+        <a href="/register/user">Регистрация пользователя</a>
+        <a href="/register/driver">Регистрация водителя</a>
+    </main>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список тарифов</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <aside class="filter-panel">
+        <form method="GET" action="">
+            <div class="filter-single-group">
+                <label for="name">Название тарифа</label>
+                <input type="text" name="name" id="name" placeholder="Эконом" value="{{ name }}">
+                <!-- <label for="name"></label> -->
+            </div>
+            <div class="filter-range-group">
+                <label for="base_price">Стоимость тарифа</label>
+                <div class="filter-range" id="base_price">
+                    <span>От </span>
+                    <input type="number" step="0.01" min="0" max="10000" name="base_price_from" id="base_price_from" placeholder="0.0" value="{{ base_price_from }}">
+                    <span> до </span>
+                    <input type="number" step="0.01" min="0" max="10000" name="base_price_to" id="base_price_to" placeholder="0.0" value="{{ base_price_to }}">
+                </div>
+                <!-- <label for="name"></label> -->
+            </div>
+            <input type="submit" value="Получить" id="submit">
+            {{ block ("report_btns", "_messaging.twig")}}
+
+        </form>
+    </aside>
+    <main class="table-panel">
+        <h2>Список тарифов</h2>
+        <table>
+            <tr>
+                <th>Имя</th>
+                <th>Баз. Стоимость</th>
+                <th>Баз. Расстояние</th>
+                <th>Стоимость за км</th>
+            </tr>
+            {% for tariff in tariffs %}
+            <tr>
+                <td>{{ tariff.name }}</td>
+                <td>{{ tariff.base_price }}</td>
+                <td>{{ tariff.base_dist }}</td>
+                <td>{{ tariff.dist_cost }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </main>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>{{title}}</title>
+		<link rel="stylesheet" href="/style.css">
+	</head>
+	<body>
+		<aside class="filter-panel">
+			<form method="GET" action="{{ callback }}">
+				<div class="filter-single-group">
+					<label for="tariff_id">Тариф</label>
+					<select name="tariff_id" id="tariff_id">
+						{% for tariff in tariffs_entries %}
+							<option value="{{tariff.id}}">{{tariff.name}}</option>
+						{% endfor %}
+					</select>
+					{# <label for="tariff_id"></label> #}
+				</div>
+				{% if type != 'rides' %}
+				<div class="filter-single-group">
+					<label for="name">Имя Водителя</label>
+					<input type="text" name="name" id="name" placeholder="Иван Иванович" value="{{ name }}">
+				</div>
+				{% endif %}
+				{% if type == 'full' %}
+				<div class="filter-single-group">
+					<label for="uname">Имя клиента</label>
+					<input type="text" name="uname" id="uname" placeholder="Иван Иванович" value="{{ uname }}">
+				</div>
+				{% endif %}
+				<div class="filter-range-group">
+					<label for="orderedAt">Даты поездки</label>
+					<div class="filter-range" id="orderedAt">
+						<span>От
+						</span>
+						<input type="datetime-local" name="orderedAt_from" id="orderedAt_from" value="{{ orderedAt_from }}">
+						<span>
+							до
+						</span>
+						<input type="datetime-local" name="orderedAt_to" id="orderedAt_to" value="{{ orderedAt_to }}">
+					</div>
+					<!-- <label for="orderedAt"></label> -->
+				</div>
+				<input type="submit" value="Получить" id="submit">
+			    {{ block ("report_btns", "_messaging.twig")}}
+			</form>
+		</aside>
+		<main class="table-panel">
+			<h2>{{title}}</h2>
+			<table>
+				<tr>
+					{% if type != 'history' %}
+						<th>Телефон клиента</th>
+					{%  endif %}
+					<th>Начальная точка</th>
+					<th>Конечная точка</th>
+					<th>Расстояние</th>
+					<th>Время заказа</th>
+					{% if type != 'rides' %}
+						<th>Имя водителя</th>
+					{%  endif %}
+					{% if type == 'full' %}
+						<th>Имя Клиента</th>
+					{%  endif %}
+					<th>Тарифф</th>
+					<th>Стоимость</th>
+				</tr>
+				{% for order in orders %}
+					<tr>
+					{% if type != 'history' %}
+						<td>{{ order.phone }}</td>
+					{%  endif %}
+						<td>{{ order.from_loc }}</td>
+						<td>{{ order.dest_loc }}</td>
+						<td>{{ order.distance }}</td>
+						<td>{{ order.orderedAt }}</td>
+					{% if type != 'rides' %}
+						<td>{{ order.driver_name }}</td>
+					{%  endif %}
+					{% if type == 'full' %}
+						<td>{{ order.user_name }}</td>
+					{%  endif %}
+						<td>{{ order.tariff_name }}</td>
+						<td>{{ order.price }}</td>
+					</tr>
+				{% else %}
+					<tr>
+					{% if type != 'history' %}
+						<td>-</td>
+					{%  endif %}
+					{% if type != 'rides' %}
+						<td>-</td>
+					{%  endif %}
+					{% if type == 'full' %}
+						<td>-</td>
+					{%  endif %}
+						<td>-</td>
+						<td>-</td>
+						<td>-</td>
+						<td>-</td>
+						<td>-</td>
+						<td>-</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</main>
+	</body>
+</html>

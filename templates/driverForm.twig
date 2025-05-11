@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <script src="/js/core.js" defer></script>
+    <script src="/js/validators/UserValidator.js" defer></script>
+    <script src="/js/validators/DriverValidator.js" defer></script>
+    <title>Такси сервис "Туда-Сюда"</title>
+</head>
+
+<body>
+    {{ block ("messages", "_messaging.twig")}}
+    <main class="main-panel">
+        <h1>{{ form_title }}</h1>
+        <form action="{{ callback }}" method="post" name="form" id="form" enctype="multipart/form-data">
+            <div class="input-group">
+                <label for="name">Имя:</label>
+                <input type="text" name="name" id="name" placeholder="Василий Пупкин" value={{username}}>
+                <!-- <label for="name" class="input-info"></label> -->
+            </div>
+            <div class="input-group">
+                <label for="phone">Контактный номер:</label>
+                <input type="text" name="phone" id="phone" placeholder="+7 (123) 456-78-90" value={{phone}}>
+                <!-- <label for="phone" class="input-info"></label> -->
+            </div>
+            <div class="input-group">
+                <label for="email">Почтовый адрес:</label>
+                <input type="email" name="email" id="email" placeholder="abc@xyz.com" value={{email}}>
+                <!-- <label for="email" class="input-info"></label> -->
+            </div>
+            <div class="input-group">
+                <label for="password">Пароль:</label>
+                <input type="password" name="password" id="password">
+                <label for="password" class="input-info">Латинница, 8 символов, 1 заглавная буква, 1 цифра, 1 спец символ</label>
+            </div>
+            <div class="input-group">
+                <label for="repeat_password">Повтор пароля:</label>
+                <input type="password" name="repeat_password" id="repeat_password">
+            </div>
+            <div class="input-group">
+                <label for="intership">Стаж:</label>
+                <input type="number" name="intership" id="intership" min='0' max="100" placeholder="0">
+                <label for="intership" class="input-info">Число от 0 до 100</label>
+            </div>
+            <div class="input-group">
+                <label for="car_license">Номер машины:</label>
+                <input type="text" name="car_license" id="car_license" placeholder="XXXXXX XXXX">
+                <label for="car_license" class="input-info">Лицензионный номер</label>
+            </div>
+            <div class="input-group">
+                <label for="car_brand">Марка машины:</label>
+                <input type="text" name="car_brand" id="car_brand">
+                <label for="car_brand" class="input-info">До 50 символов</label>
+            </div>
+            <div class="input-group">
+                <label for="tariff_id">Тариф:</label>
+                <select name="tariff_id" id="tariff_id">
+                    {% for tariff in avaliable_tariffs %}
+                        <option value="{{ tariff.id }}" {% if tariff.id == tariff_id %}selected="selected"{% endif %}>{{ tariff.name }}</option>
+                    {% endfor %}
+                </select>
+                <!-- <label for="tariff_id"></label> -->
+            </div>
+            <input type="submit" value="Отправить" id="submit">
+            <div class="input-group">
+                <label for="csv-file">Отправить CSV файл</label>
+                <input type="file" name="csv-file" id="csv-file" accept=".csv">
+                <label for="csv-file" hidden>Ошибка записи</label>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

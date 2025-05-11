@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Список водителей</title>
+		<link rel="stylesheet" href="/style.css">
+	</head>
+	<body>
+		<aside class="filter-panel">
+			<form method="GET" action="">
+				<div class="filter-single-group">
+					<label for="name">Имя водителя</label>
+					<input
+					type="text" name="name" id="name" placeholder="Иван Иванович" value="{{ name }}">
+				<!-- <label for="name"></label> -->
+				</div>
+				<div class="filter-single-group">
+					<label for="phone">Номер телефона</label>
+					<input
+					type="text" name="phone" id="phone" placeholder="+1 (234) 567-89-00" value="{{ phone }}">
+				<!-- <label for="name"></label> -->
+				</div>
+				<div class="filter-single-group">
+					<label for="email">Почта</label>
+					<input
+					type="text" name="email" id="email" placeholder="abc@xyz.com" value="{{ email }}">
+				<!-- <label for="name"></label> -->
+				</div>
+				<div class="filter-single-group">
+					<label for="car_license">Лицензионный номер</label>
+					<input
+					type="text" name="car_license" id="car_license" placeholder="XXXXXX XXX" value="{{ car_license }}">
+				<!-- <label for="name"></label> -->
+				</div>
+
+				<input type="submit" value="Получить" id="submit">
+			    {{ block ("report_btns", "_messaging.twig")}}
+
+			</form>
+		</aside>
+		<main class="table-panel">
+			<h2>Список водителей</h2>
+			<table>
+				<tr>
+					<th>Имя</th>
+					<th>Телефон</th>
+					<th>email</th>
+					<th>Стаж</th>
+					<th>Лицензионный номер</th>
+					<th>Марка машины</th>
+					<th>Тарифф</th>
+				</tr>
+				{% for driver in drivers %}
+					<tr>
+						<td>{{ driver.name }}</td>
+						<td>{{ driver.phone }}</td>
+						<td>{{ driver.email }}</td>
+						<td>{{ driver.intership }}</td>
+						<td>{{ driver.car_license }}</td>
+						<td>{{ driver.car_brand }}</td>
+						<td>{{ driver.tariff_name }}</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td>-</td>
+						<td>-</td>
+						<td>-</td>
+						<td>-</td>
+						<td>-</td>
+						<td>-</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</main>
+	</body>
+</html>

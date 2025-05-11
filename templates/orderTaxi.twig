@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/leaflet.css"/>
+    <link rel="stylesheet" href="/leaflet-routing-machine.css"/>
+    <link rel="stylesheet" href="/style.css">
+    <title>Новая поездка</title>
+</head>
+<body>
+    <aside class="filter-panel">
+    <div id="map" style="height: 500px; width: 500px;"></div>
+        <script src="/js/leaflet.js"></script>
+        <script type="module" src="/js/graphhopper.js" defer></script>
+        <form action="" method="get">
+            <div class="filter-single-group">
+                <label for="tariff_id">Тариф:</label>
+                <select name="tariff_id" id="tariff_id" >
+                    {% for tariff in avaliable_tariffs %}
+                        <option value="{{ tariff.id }}" {% if tariff.id == tariff_id %}selected="selected"{% endif %}>{{ tariff.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-single-group">
+                <label for="rating_from">Минимальный рейтинг:</label>
+                <input type="number" name="rating_from" id="rating_from" min="0.0" max="5.0" placeholder="0.0" value="{{ rating_from }}">
+            </div>
+            <input type="submit" value="Применить фильтры" id="filter-orders">
+        </form>
+    </aside>
+    <main class="articles-panel">
+        <h2>Список доступных водителей</h2>
+        {% for order in avaliable_orders %}
+        <article class="avaliable-order" data-driverId="{{ order.driver_id }}" data-tariffId="{{ order.tariff_id }}" data-price="{{ order.price }}">
+            <span>{{ order.driver_name }}</span>
+            <span>{{ order.rating }}</span>
+            <span>{{ order.tariff_name}}</span>
+            <span>{{ order.price }}</span>
+        </article>
+        {% else %}
+        
+        <article><h3>Нет доступных водителей<h3</article>
+        {% endfor %}
+    </main>
+</body>
+</html>

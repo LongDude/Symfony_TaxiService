@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Список водителей</title>
+		<link rel="stylesheet" href="/style.css">
+	</head>
+	<body>
+        {{ block ("messages", "_messaging.twig")}}
+		<aside class="filter-panel">
+			<form method="GET" action="">
+				<div class="filter-single-group">
+					<label for="name">Имя пользователя</label>
+					<input
+					type="text" name="name" id="name" placeholder="Иван Иванович" value="{{ name }}">
+				<!-- <label for="name"></label> -->
+				</div>
+				<div class="filter-single-group">
+					<label for="phone">Номер телефона</label>
+					<input
+					type="text" name="phone" id="phone" placeholder="+1 (234) 567-89-00" value="{{ phone }}">
+				<!-- <label for="name"></label> -->
+				</div>
+				<div class="filter-single-group">
+					<label for="email">Почта</label>
+					<input
+					type="text" name="email" id="email" placeholder="abc@xyz.com" value="{{ email }}">
+				<!-- <label for="name"></label> -->
+				</div>
+				<input type="submit" value="Получить" id="submit">
+			    {{ block ("report_btns", "_messaging.twig")}}
+			</form>
+		</aside>
+		<main class="table-panel">
+			<h2>Список пользователей</h2>
+			<table>
+				<tr>
+					<th>Имя</th>
+					<th>Телефон</th>
+					<th>email</th>
+				</tr>
+				{% for user in users %}
+					<tr>
+						<td>{{ user.name }}</td>
+						<td>{{ user.phone }}</td>
+						<td>{{ user.email }}</td>
+					</tr>
+				{% else %}
+					<tr>
+						<td>-</td>
+						<td>-</td>
+						<td>-</td>
+					</tr>
+				{% endfor %}
+			</table>
+		</main>
+	</body>
+</html>
