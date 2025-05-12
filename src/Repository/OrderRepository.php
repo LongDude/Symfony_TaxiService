@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Order;
+use App\Entity\Tariff;
 use App\Entity\User;
 use App\Entity\Driver;
 use App\Core\QueryFilters;
@@ -36,10 +37,10 @@ class OrderRepository extends ServiceEntityRepository
                 't.name as tariff_name',
                 'o.price as price'
             ])
-            ->join('o.tariff', 't')
-            ->join('o.user_id', 'u1')
-            ->join('o.driver', 'd')
-            ->join('d.user', 'u2');
+            ->leftJoin('o.tariff', 't')
+            ->leftJoin('o.user_id', 'u1')
+            ->leftJoin('o.driver', 'd')
+            ->leftJoin('d.user', 'u2');
 
         $qfb = new QueryFilters($qb, $filters);
         $qfb
@@ -62,19 +63,20 @@ class OrderRepository extends ServiceEntityRepository
 
     public function getAvailableRides(array $filters = [], $distance = 0): array
     {
+        $distance = (float) $distance;
         $qb = $this->getEntityManager()->createQueryBuilder()
             ->select([
                 'u.name as driver_name',
-                'u.id as driver_id',
+                'd.id as driver_id',
                 'd.rating as rating',
                 't.name as tariff_name',
                 't.id as tariff_id',
-                '(t.base_price + CASE WHEN :distance > t.base_dist THEN (:distance - t.base_dist) ELSE 0 END * t.dist_cost) as price'
+                '(t.base_price + (CASE WHEN :distance > t.base_dist THEN (:distance - t.base_dist) ELSE 0 END) * t.dist_cost) as price'
             ])
-            ->setParameter('distance', $distance)
             ->from(Driver::class, 'd')
-            ->join('d.tariff', 't')
-            ->join('d.user', 'u');
+            ->leftjoin('d.tariff', 't')
+            ->leftjoin('d.user', 'u')
+            ->setParameter('distance', $distance);
 
         $qfb = new QueryFilters($qb, $filters);
         $qfb
@@ -88,8 +90,10 @@ class OrderRepository extends ServiceEntityRepository
         string $from_loc,
         string $dest_loc,
         float $distance,
+        float $price,
         int $driver_id,
         int $user_id,
+        int $tariff_id,
         ?string $orderedAt=null,
     ): Order {
         $order = new Order();
@@ -97,9 +101,11 @@ class OrderRepository extends ServiceEntityRepository
         ->setFromLoc($from_loc)
         ->setDestLoc($dest_loc)
         ->setDistance($distance)
+        ->setPrice($price)
         ->setDriver($this->getEntityManager()->getRepository(Driver::class)->find($driver_id))
-        ->setUserId($this->getEntityManager()->getRepository(User::class)->find($user_id));
-        if (!empty($orderedAt)){
+        ->setUserId($this->getEntityManager()->getRepository(User::class)->find($user_id))
+        ->setTariff($this->getEntityManager()->getRepository(Tariff::class)->find($tariff_id));
+        if (empty($orderedAt)){
             $order->setOrderedAt(new \DateTimeImmutable($orderedAt));
         }
 

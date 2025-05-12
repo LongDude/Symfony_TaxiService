@@ -47,3 +47,41 @@
         });
     </script>
 {% endblock %}
+
+{% block csv_upload %}
+<div class="csv-upload">
+    <form id="csv-upload-form" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('upload') }}">
+        <label for="csv-file">Загрузить CSV:</label>
+        <input type="file" name="csv-file" id="csv-file" accept=".csv">
+        <div class="upload-status"></div>
+    </form>
+</div>
+
+<script>
+document.getElementById('csv-file').addEventListener('change', function(e) {
+    const form = document.getElementById('csv-upload-form');
+    const formData = new FormData(form);
+    const status = document.querySelector('.upload-status');
+    const currentParams = new URLSearchParams(window.location.search);
+    
+    status.textContent = 'Загрузка...';
+    
+    fetch(window.location + '/upload', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.status == 200){
+            console.log(response.content);
+            window.location.search = currentParams.toString();
+        } else {
+            status.textContent = 'Ошибка: ' + response.content;
+        }
+    })
+    .catch(error => {
+        status.textContent = 'Ошибка сети: ' + error.message;
+    });
+});
+</script>
+{% endblock %}

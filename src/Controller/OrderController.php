@@ -7,16 +7,20 @@ use Fawno\FPDF\FawnoFPDF;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Validators\OrderValidator;
 use App\Entity\Order;
 use App\Entity\Tariff;
 use App\Entity\User;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class OrderController extends AbstractController
 {
     #[Route('/orders', name: 'app_order')]
+    #[IsGranted('ROLE_ADMIN')]
     public function index(
         Request $request,
         EntityManagerInterface $em,
@@ -32,15 +36,20 @@ final class OrderController extends AbstractController
         [$filter, $err] = OrderValidator::validateFilter($_GET);
         $list = $orderRepository->getFilteredList($filter);
         $msg = '';
-
         $tariffs_list = $tariffRepository->findAll();
-        if (isset($_GET['type']) && $_GET['type'] === "pdf") {
-            $this->generatePdf($list, 'full');
-            $msg = "Отчет успешно составлен\n";
-        } elseif (isset($_GET['type']) && $_GET['type'] == 'excel') {
-            $this->generateExcel($list, 'full');
-            $msg = "Отчет успешно составлен\n";
+
+
+        foreach ($list as $k => $r) {
+            $list[$k]['orderedAt'] = $r['orderedAt']->format('Y-m-d H:i:s');
         }
+
+        if (isset($_GET['type']) && $_GET['type'] === "pdf") {
+            return $this->generatePdf($list, 'full');
+        } elseif (isset($_GET['type']) && $_GET['type'] == 'excel') {
+            return $this->generateExcel($list, 'full');
+        }
+
+
 
         return $this->render(
             'orders/orders.twig',
@@ -62,12 +71,14 @@ final class OrderController extends AbstractController
     }
 
     #[Route('/history/orders', name: 'app_history_orders')]
+    #[IsGranted('ROLE_DRIVER')]
     public function history_orders(
         Request $request,
         EntityManagerInterface $em,
     ): Response {
         $orderRepository = $em->getRepository(Order::class);
         $tariffRepository = $em->getRepository(Tariff::class);
+
         $user = $this->getUser();
         if (!$user instanceof User) {
             throw $this->createAccessDeniedException();
@@ -76,16 +87,19 @@ final class OrderController extends AbstractController
         $driver = $user->getDriver();
         [$filter, $err] = OrderValidator::validateFilter($_GET);
         $list = $orderRepository->getFilteredList($filter, null, $driver->getId());
+
         $msg = '';
 
         $tariffs_list = $tariffRepository->findAll();
 
+        foreach ($list as $k => $r) {
+            $list[$k]['orderedAt'] = $r['orderedAt']->format('Y-m-d H:i:s');
+        }
+
         if (isset($_GET['type']) && $_GET['type'] === "pdf") {
-            $this->generatePdf($list, 'full');
-            $msg = "Отчет успешно составлен\n";
+            return $this->generatePdf($list, 'full');
         } elseif (isset($_GET['type']) && $_GET['type'] == 'excel') {
-            $this->generateExcel($list, 'full');
-            $msg = "Отчет успешно составлен\n";
+            return $this->generateExcel($list, 'full');
         }
 
         return $this->render(
@@ -107,6 +121,7 @@ final class OrderController extends AbstractController
     }
 
     #[Route('/history/rides', name: 'app_history_rides')]
+    #[IsGranted('ROLE_USER')]
     public function history_rides(
         Request $request,
         EntityManagerInterface $em,
@@ -124,17 +139,16 @@ final class OrderController extends AbstractController
         $tariffs_list = $tariffRepository->findAll();
         $msg = '';
 
-        if (isset($_GET['type']) && $_GET['type'] === "pdf") {
-            $this->generatePdf($list, 'full');
-            $msg = "Отчет успешно составлен\n";
-        } elseif (isset($_GET['type']) && $_GET['type'] == 'excel') {
-            $this->generateExcel($list, 'full');
-            $msg = "Отчет успешно составлен\n";
-        }
-
         foreach ($list as $k => $r) {
             $list[$k]['orderedAt'] = $r['orderedAt']->format('Y-m-d H:i:s');
         }
+
+        if (isset($_GET['type']) && $_GET['type'] === "pdf") {
+            return $this->generatePdf($list, 'full');
+        } elseif (isset($_GET['type']) && $_GET['type'] == 'excel') {
+            return $this->generateExcel($list, 'full');
+        }
+
         return $this->render(
             'orders/orders.twig',
             [
@@ -155,6 +169,7 @@ final class OrderController extends AbstractController
     }
 
     #[Route('/order/new', name: 'app_order_new')]
+    #[IsGranted('ROLE_USER')]
     public function order_taxi(
         Request $request,
         EntityManagerInterface $em,
@@ -168,6 +183,9 @@ final class OrderController extends AbstractController
             throw $this->createAccessDeniedException();
         }
         
+        $distance = trim($request->request->get('distance', ''));
+
+
         if ($request->isMethod('GET')) {
             $filter = [];
             $ratingFrom = $request->query->get('rating_from');
@@ -181,7 +199,7 @@ final class OrderController extends AbstractController
                 $filter['tariff_id'] = $tariffId;
             }
 
-            $list = $orderRepository->getAvailableRides($filter);
+            $list = $orderRepository->getAvailableRides($filter, $distance);
             $avaliable_tariffs = $tariffRepository->findAll();
 
             return $this->render(
@@ -195,17 +213,20 @@ final class OrderController extends AbstractController
                 ]
             );
         } else {
+            $price = trim($request->request->get('price', ''));
             $driverId = trim($request->request->get('driver_id', ''));
+            $tariffId = trim($request->request->get('tariff_id', ''));
             $begin = trim($request->request->get('startPoint', ''));
             $destination = trim($request->request->get('endPoint', ''));
-            $distance = trim($request->request->get('distance', ''));
 
             $success = $orderRepository->addOrder(
                 $begin,
                 $destination,
                 $distance,
+                $price,
                 $driverId,
                 $user->getId(),
+                $tariffId
             );
             return new Response(
                 $this->json(['message' => $success ? 'New record added!' : 'An error occurred']), 
@@ -214,7 +235,7 @@ final class OrderController extends AbstractController
         }
     }
 
-    private function generatePdf(array $data, string $reportType)
+    private function generatePdf(array $data, string $reportType): Response
     {
         function toWin1251(?string $text): ?string
         {
@@ -235,20 +256,20 @@ final class OrderController extends AbstractController
 
         // $pdf->SetFont('DejaVuSerif.ttf', 'B', 12);
         $pdf->SetFont($fontname, 'B', 12);
-        $pdf->Cell(20, 10, 'Начальная точка', 1);
-        $pdf->Cell(20, 10, 'Конечная точка', 1);
-        $pdf->Cell(20, 10, 'Расстояние', 1);
-        $pdf->Cell(20, 10, 'Время заказа', 1);
+        $pdf->Cell(20, 10, toWin1251('Начальная точка'), 1);
+        $pdf->Cell(20, 10, toWin1251('Конечная точка'), 1);
+        $pdf->Cell(20, 10, toWin1251('Расстояние'), 1);
+        $pdf->Cell(20, 10, toWin1251('Время заказа'), 1);
 
         if ($reportType != 'rides') {
-            $pdf->Cell(20, 10, 'Имя водителя', 1);
+            $pdf->Cell(20, 10, toWin1251('Имя водителя'), 1);
         }
         if ($reportType == 'full') {
-            $pdf->Cell(20, 10, 'Имя клиента', 1);
+            $pdf->Cell(20, 10, toWin1251('Имя клиента'), 1);
         }
 
-        $pdf->Cell(20, 10, 'Тарифф', 1);
-        $pdf->Cell(20, 10, 'Стоимость', 1);
+        $pdf->Cell(20, 10, toWin1251('Тарифф'), 1);
+        $pdf->Cell(20, 10, toWin1251('Стоимость'), 1);
 
         $pdf->Ln();
 
@@ -257,24 +278,29 @@ final class OrderController extends AbstractController
             if ($reportType != 'history') {
                 $pdf->Cell(20, 10, $row['phone'], 1);
             }
-            $pdf->Cell(20, 10, $row['from_loc'], 1);
-            $pdf->Cell(20, 10, $row['dest_loc'], 1);
-            $pdf->Cell(20, 10, $row['distance'], 1);
-            $pdf->Cell(20, 10, $row['orderedAt'], 1);
+            $pdf->Cell(20, 10, toWin1251($row['from_loc']), 1);
+            $pdf->Cell(20, 10, toWin1251($row['dest_loc']), 1);
+            $pdf->Cell(20, 10, toWin1251($row['distance']), 1);
+            $pdf->Cell(20, 10, toWin1251($row['orderedAt']), 1);
 
             if ($reportType != 'rides') {
-                $pdf->Cell(20, 10, $row['driver_name'], 1);
+                $pdf->Cell(20, 10, toWin1251($row['driver_name']), 1);
             }
             if ($reportType == 'full') {
-                $pdf->Cell(20, 10, $row['user_name'], 1);
+                $pdf->Cell(20, 10, toWin1251($row['user_name']), 1);
             }
 
-            $pdf->Cell(20, 10, $row['tariff_name'], 1);
-            $pdf->Cell(20, 10, $row['price'], 1);
+            $pdf->Cell(20, 10, toWin1251($row['tariff_name']), 1);
+            $pdf->Cell(20, 10, toWin1251($row['price']), 1);
             $pdf->Ln();
         }
-        $pdf->Output('I', 'report.pdf');
-        exit;
+        $pdfContent = $pdf->Output('S', 'report.pdf');
+
+        $response = new Response($pdfContent);
+        $response->headers->set('Content-Type', 'application/pdf');
+        $response->headers->set('Content-Disposition', 'attachment; filename="order_report.pdf"');
+        $response->headers->set('Cache-Control', 'private, max-age=0, must-revalidate');
+        return $response;
     }
 
     private function generateExcel(array $data, string $reportType)
@@ -325,7 +351,12 @@ final class OrderController extends AbstractController
         header('Content-Disposition: attachment; filename="report.xlsx"');
 
         $writer = new Xlsx($spreadsheet);
-        $writer->save('php://output');
-        exit;
+        $tempFile = tempnam(sys_get_temp_dir(), 'excel');
+        $writer->save($tempFile);
+
+        $response = new BinaryFileResponse($tempFile);
+        $response->headers->set('Cache-Control', 'private, max-age=0, must-revalidate');
+        $response->deleteFileAfterSend(true);
+        return $response;   
     }
 }

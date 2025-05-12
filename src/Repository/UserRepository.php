@@ -6,6 +6,9 @@ use App\Entity\User;
 use App\Core\QueryFilters;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
+use RuntimeException;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -22,7 +25,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function getFilteredList(array $filters = []): array {
         $qb = $this->createQueryBuilder('u')
-        ->select('u.name', 'u.phone', 'u.email', 'u.role');
+        ->select('u.name', 'u.phone', 'u.email', 'u.roles');
 
         $qfb = new QueryFilters($qb, $filters);
         $qfb->like('name', 'u.name')
@@ -76,42 +79,52 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $user;
     }
 
-    public function importCsv(string $filePath): bool
+    public function importCsv(array $csvData, UserPasswordHasherInterface $hasher): int
     {
         $em = $this->getEntityManager();
-        if (($handle = fopen($filePath, 'r')) !== false) {
-            // Skip header row if exists
-            fgetcsv($handle);
-            
-            $em->getConnection()->beginTransaction();
-            
-            try {
-                while (($data = fgetcsv($handle))) {
-                    // Assuming CSV format: name,phone,email,intership,car_license,car_brand,tariff_id
+        $connection = $em->getConnection();
+        $connection->beginTransaction();
 
-                    $user = $this->findOneBy(['phone' => $data[1]]) ??
-                            $this->findOneBy(['email' => $data[2]]) ??
-                            new User();
+        $isHeader = true;
+        $count = 0;
 
-                    $user->setName($data[0])
-                         ->setPhone($data[1])
-                         ->setEmail($data[2])
-                         ->setPassword($data[3])
-                         ->addRole($data[4]);
-                    
+        try {
+            foreach ($csvData as $row) {
+                if ($isHeader) {
+                    $isHeader = false;
+                    continue;
+                }
+
+                if (count($row) < 4){
+                    throw new RuntimeException('Invalid CSV. Expected 4 columns');
+                }
+
+                $user_name = $row[0];
+                $user_phone = $row[1];
+                $user_email = $row[2];
+                $user_password = $row[3];
+
+                $user = $this->findOneBy(['email' => $user_email]);
+                if (!$user){
+                    $user = new User();
                     $em->persist($user);
                 }
-                
-                $em->flush();
-                $em->getConnection()->commit();
-            } catch (\Exception $e) {
-                $em->getConnection()->rollBack();
-                throw $e;
+                $user
+                ->setName($user_name)
+                ->setPhone($user_phone)
+                ->setEmail($user_email)
+                ->setPassword($hasher->hashPassword($user, $user_password));
+
+                $count++;
             }
-            
-            fclose($handle);
+
+            $em->flush();
+            $connection->commit();
+            return $count;
+        } catch (Exception $e) {
+            $connection->rollBack();
+            throw $e;
         }
-        return true;
     }
 
     /**
@@ -128,28 +141,4 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->flush();
     }
 
-    //    /**
-    //     * @return User[] Returns an array of User objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('u.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?User
-    //    {
-    //        return $this->createQueryBuilder('u')
-    //            ->andWhere('u.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
 }

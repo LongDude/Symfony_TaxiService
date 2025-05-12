@@ -13,12 +13,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class TariffController extends AbstractController
 {
     #[Route('/tariffs/list', name: 'app_tariffs_list')]
+    #[IsGranted('ROLE_USER')]
     public function tariffs_list(
         EntityManagerInterface $em,
     ): Response {
@@ -30,6 +33,7 @@ final class TariffController extends AbstractController
             $new_line['base_price'] = $tariff->getBasePrice();
             $new_line['base_dist'] = $tariff->getBaseDist();
             $new_line['dist_cost'] = $tariff->getDistCost();
+            $tariff_data[] = $new_line;
         };
         return $this->render(
             'tariff/tariffs_list.twig',
@@ -41,6 +45,7 @@ final class TariffController extends AbstractController
     
 
     #[Route('/tariffs/table', name: 'app_tariffs_table')]
+    #[IsGranted('ROLE_ADMIN')]
     public function tariffs_table(
         Request $request,
         EntityManagerInterface $em,
@@ -74,7 +79,41 @@ final class TariffController extends AbstractController
         );
     }
 
+    #[Route('/tariffs/table/upload', name: 'app_tariffs_table_upload')]
+    #[IsGranted('ROLE_ADMIN')]
+    public function tariffs_table_upload(
+        Request $request,
+        EntityManagerInterface $em,
+        ): Response {
+        $tariffRepository = $em->getRepository(Tariff::class);
+        $file = $request->files->get('csv-file');
+
+        if (!$file || !$file->isValid()){
+            return new Response('Ошибка чтения файла', 400);
+        }
+        if ($file->getClientMimeType() !== 'text/csv'){
+            return new Response('Только CSV файлы разрешены', 400);
+        }
+
+        try {
+            $content = $file->getContent();
+            $lines = explode("\n", $content);
+            $data = [];
+            foreach ($lines as $line){
+                if (empty(trim($line))) continue;
+                $data[] = str_getcsv(trim($line), ';');
+            }
+
+            $count = $tariffRepository->importCsv($data);
+            return new Response("Успешно загружено $count строк", 200);
+        } catch (\Exception $e){
+            return new Response($e->getMessage(), 500);
+        }
+    }
+
+
     #[Route('/tariffs/add', name:'app_tariffs_add', methods: ['POST', 'GET'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function tariffs_new(
         Request $request,
         EntityManagerInterface $em,
@@ -164,8 +203,8 @@ final class TariffController extends AbstractController
         $writer->save($tempFile);
 
         $response = new BinaryFileResponse($tempFile);
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'tariffs_report.xlsx');
+        $response->headers->set('Cache-Control', 'private, max-age=0, must-revalidate');
+        $response->deleteFileAfterSend(true);
         return $response;    
     }
 }

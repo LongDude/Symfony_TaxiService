@@ -9,6 +9,8 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use App\Core\QueryFilters;
+use RuntimeException;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 /**
  * @extends ServiceEntityRepository<Driver>
  */
@@ -49,8 +51,8 @@ class DriverRepository extends ServiceEntityRepository
                 'd.car_brand',
                 't.name as tariff_name'
             ])
-            ->join('d.user_id', 'u')
-            ->leftJoin('d.tariff_id', 't');
+            ->join('d.user', 'u')
+            ->leftJoin('d.tariff', 't');
         $qfb = new QueryFilters($qb, $filters);
 
         $qfb->like('name', 'u.name')
@@ -112,56 +114,71 @@ class DriverRepository extends ServiceEntityRepository
         return $driver;
     }
 
-    public function importCsv(string $filePath): bool
+    public function importCsv(array $csvData, UserPasswordHasherInterface $hasher): int
     {
         $em = $this->getEntityManager();
         $userRep = $em->getRepository(User::class);
         $tariffRep = $em->getRepository(Tariff::class);
+        $connection = $em->getConnection();
+        $connection->beginTransaction();
 
-        if (($handle = fopen($filePath, 'r')) !== false) {
-            // Skip header row if exists
-            fgetcsv($handle);
-            
-            $em->getConnection()->beginTransaction();
-            
-            try {
-                while (($data = fgetcsv($handle))) {
-                    // Assuming CSV format: name,phone,email,intership,car_license,car_brand,tariff_id
+        $isHeader = true;
+        $count = 0;
 
-                    $user = $userRep->findOneBy(['phone' => $data[1]]) ??
-                            $userRep->findOneBy(['email' => $data[2]]) ??
-                            new User();
+        try {
+            foreach ($csvData as $row) {
+                if ($isHeader) {
+                    $isHeader = false;
+                    continue;
+                }
 
-                    $user->setName($data[0])
-                         ->setPhone($data[1])
-                         ->setEmail($data[2]);
+                if (count($row) < 8){
+                    throw new RuntimeException('Invalid CSV. Expected 8 columns');
+                }
 
-                    $tariff = null;
-                    if (!empty($data[6])){
-                        $tariff = $tariffRep->find($data[6]);
-                    }
+                $user_name = $row[0];
+                $user_phone = $row[1];
+                $user_email = $row[2];
+                $user_password = $row[3];
+                $driver_intership = $row[4];
+                $driver_car_license = $row[5];
+                $driver_car_brand = $row[6];
+                $tariff_name = $row[7];
 
-                    // Если пользователь уже существовал, у него может быть регистрация водителя
-                    $driver = $user->getDriver() ?? new Driver();
-                    $driver->setUser($user) // В теории повторно присвоить тот же элемент можно
-                           ->setIntership((int)$data[3])
-                           ->setCarLicense($data[4])
-                           ->setCarBrand($data[5])
-                           ->setTariff($tariff);
-                    
+                $user = $userRep->findOneBy(['email' => $user_email]);
+                if (!$user){
+                    $user = new User();
+                    $user->addRole('ROLE_DRIVER');
                     $em->persist($user);
+                }
+                $user
+                ->setName($user_name)
+                ->setPhone($user_phone)
+                ->setEmail($user_email)
+                ->setPassword($hasher->hashPassword($user, $user_password));
+
+                $tariff = $tariffRep->findOneBy(['name' => $tariff_name]);
+                $driver = $user->getDriver();
+                if (!$driver){
+                    $driver = new Driver();
+                    $driver->setUser($user);
                     $em->persist($driver);
                 }
-                
-                $em->flush();
-                $em->getConnection()->commit();
-            } catch (Exception $e) {
-                $em->getConnection()->rollBack();
-                throw $e;
+                $driver
+                ->setIntership($driver_intership)
+                ->setCarLicense($driver_car_license)
+                ->setCarBrand($driver_car_brand)
+                ->setTariff($tariff);
+
+                $count++;
             }
-            
-            fclose($handle);
+
+            $em->flush();
+            $connection->commit();
+            return $count;
+        } catch (Exception $e) {
+            $connection->rollBack();
+            throw $e;
         }
-        return true;
     }
 }

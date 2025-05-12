@@ -27,8 +27,8 @@
             <input type="submit" value="Получить" id="submit">
             <a href="/tariffs/add">Добавить Тариф Тарифова</a>
             {{ block ("report_btns", "_messaging.twig")}}
-
         </form>
+            {{ block ("csv_upload", "_messaging.twig")}}
     </aside>
     <main class="table-panel">
         <h2>Список тарифов</h2>

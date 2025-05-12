@@ -43,6 +43,9 @@ security:
         - { path: ^/main, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+    access_denied_url: /main
+    # or for more control:
+    # access_denied_handler: App\Security\AccessDeniedHandler
 
 when@test:
     security:
